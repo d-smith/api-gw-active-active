@@ -15,3 +15,4 @@ artifacts:
   files:
     - deploy-artifacts/*
   discard-paths: yes
+  base-directory: sample-app
