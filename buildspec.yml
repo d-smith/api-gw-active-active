@@ -3,8 +3,7 @@ version: 0.2
 phases:
   install:
     commands:
-      - apt-get -y update
-      - apt-get -y install zip
+      - yum install -y zip
       - npm install -g serverless
   build:
     commands:
