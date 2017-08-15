@@ -1,0 +1,43 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  Create an IAM role to use for code build for serverless builds
+
+Resources:
+
+
+
+  CodeBuildServerlessRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: [codebuild.amazonaws.com]
+          Action: ['sts:AssumeRole']
+      Path: /
+      ManagedPolicyArns:
+      - arn:aws:iam::aws:policy/AmazonS3FullAccess 
+      - arn:aws:iam::aws:policy/AWSLambdaFullAccess
+      - arn:aws:iam::aws:policy/AmazonAPIGatewayAdministrator
+
+  CFPolicy:
+    Type: "AWS::IAM::Policy"
+    DependsOn: CodeBuildServerlessRole
+    Properties: 
+      PolicyName: "CFCodeBuild"
+      PolicyDocument: 
+        Version: "2012-10-17"
+        Statement: 
+          - 
+            Effect: "Allow"
+            Action: 
+              - "cloudformation:*"
+            Resource: "*"
+      Roles:
+        -
+          Ref: "CodeBuildServerlessRole"
+Outputs:
+
+  CodeBuildServerlessRole:
+    Value: !GetAtt CodeBuildServerlessRole.Arn
