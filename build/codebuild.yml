@@ -2,6 +2,11 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: >
   Create an IAM role to use for code build for serverless builds
 
+Parameters:
+  ArtifactBucket:
+    Type: String
+    Description: Bucket name in which to store the artifacts
+
 Resources:
 
   CodeBuildServerlessRole:
@@ -43,7 +48,8 @@ Resources:
       Description: build project (and ci skeleton) for gw sample
       ServiceRole: !GetAtt CodeBuildServerlessRole.Arn
       Artifacts:
-        Type: no_artifacts
+        Type: S3
+        Location: !Ref ArtifactBucket
       Environment:
         Type: LINUX_CONTAINER
         ComputeType: BUILD_GENERAL1_SMALL

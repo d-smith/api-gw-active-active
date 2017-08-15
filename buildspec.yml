@@ -7,3 +7,11 @@ phases:
   build:
     commands:
       - serverless --version
+      - cd sample-app
+      - mkdir deploy-artifacts
+      - serverless package --package deploy-artifacts
+
+artifacts:
+  files:
+    - deploy-artifacts/*
+  discard-paths: yes
