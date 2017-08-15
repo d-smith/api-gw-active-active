@@ -1,4 +1,4 @@
-# API Gateway as a Cloud Front Origin
+# API Gateway with a Cloud Front Origin
 
 One annoyance with the current way the AWS Gateway in implemented is how it is 
 wrapped in a cloud front distribution that defeats the ability to set up a multi-region
