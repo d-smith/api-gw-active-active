@@ -10,9 +10,10 @@ phases:
       - cd sample-app
       - mkdir deploy-artifacts
       - serverless package --package deploy-artifacts
+      - cd deploy-artifacts && zip -r ../deploy-artifacts.zip ./*
 
 artifacts:
   files:
-    - deploy-artifacts/*
+    - deploy-artifacts.zip
   discard-paths: yes
   base-directory: sample-app
