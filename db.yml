@@ -1,0 +1,23 @@
+  Resources:
+    TodosDynamoDbTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: id
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: 
+          Fn::Join: ["-", [ !Ref "AWS::StackName", "TODOS"] ]
+  Outputs:
+    TableName:
+      Value: !Ref TodosDynamoDbTable
+      Export:
+        Name: !Sub "${AWS::StackName}-TableName"
+

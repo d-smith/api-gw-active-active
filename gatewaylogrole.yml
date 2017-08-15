@@ -1,0 +1,26 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  Create an IAM role to use for cloud watch log integration at the API
+  gateway. Once this is created go to the Settings section of the 
+  API Gateway console and select the ARN associated with the role created
+  by this template.
+
+Resources:
+
+  GatewayLogRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: [apigateway.amazonaws.com]
+          Action: ['sts:AssumeRole']
+      Path: /
+      ManagedPolicyArns:
+      - arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs
+
+Outputs:
+
+  GatewayLogRoleArn:
+    Value: !GetAtt GatewayLogRole.Arn

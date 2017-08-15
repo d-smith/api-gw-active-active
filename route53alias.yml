@@ -1,0 +1,27 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  Create a route 53 alias for a CDN for the CDN's CNAME.
+
+Parameters:
+  HostedZoneName:
+    Type: String
+    Description: Hosted zone name (domain) - be sure to include the trailing '.'
+  RecordSetDomainName:
+    Type: String
+    Description: Domain name  - should match your cname probably
+  CloudFrontDomain:
+    Type: String
+
+Resources:
+
+  MyDNSRecordSet:
+    Type: AWS::Route53::RecordSetGroup
+    Properties:
+      HostedZoneName: !Ref HostedZoneName
+      RecordSets:
+      - Name:
+          Ref: RecordSetDomainName
+        Type: A
+        AliasTarget: 
+          HostedZoneId: Z2FDTNDATAQYW2
+          DNSName: !Ref CloudFrontDomain

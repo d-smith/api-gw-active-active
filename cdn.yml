@@ -1,0 +1,76 @@
+# CDN that serves both static content from an s3 bucket and
+# API traffic as well.
+AWSTemplateFormatVersion: '2010-09-09'
+
+Parameters:
+  APIEndpoint:
+    Type: String
+    Description: Gateway stage api endpoint domain part, e.g. <api-id>.execute-api.us-east-1.amazonaws.com
+  S3SiteEndpoint:
+    Type: String
+    Description: Bucket domain, for example in us-east-1 looks like <bucket-name>.s3.amazonaws.com
+  APIStage:
+    Type: String
+    Description: Stage name of API deployment
+  CName:
+    Type: String
+    Description: CName alias
+  CertificateArn:
+    Type: String
+    Description: ACM Certificate name to associate with the CloudFront distribution.
+  
+
+Resources:
+  WebpageCDN:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Aliases:
+          - !Ref CName
+        DefaultCacheBehavior:
+          ForwardedValues:
+            QueryString: true
+          TargetOriginId: webpage
+          ViewerProtocolPolicy: redirect-to-https
+        CacheBehaviors:
+          - AllowedMethods:
+              - DELETE
+              - GET
+              - HEAD
+              - OPTIONS
+              - PATCH
+              - POST
+              - PUT
+            CachedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+            Compress: true
+            ForwardedValues:
+              Headers:
+                - Accept
+                - Referer
+                - Authorization
+                - Content-Type
+                - x-api-key
+              QueryString: true
+            PathPattern: "/todos/*"
+            TargetOriginId: api
+            ViewerProtocolPolicy: https-only
+        DefaultRootObject: index.html
+        Enabled: true
+        Origins:
+          - DomainName: !Ref S3SiteEndpoint
+            Id: webpage
+            S3OriginConfig:
+              OriginAccessIdentity:
+                Ref: AWS::NoValue
+          - DomainName: !Ref APIEndpoint
+            Id: api
+            CustomOriginConfig:
+              OriginProtocolPolicy: https-only
+            OriginPath: !Join ['/', ['', !Ref APIStage]]
+        PriceClass: PriceClass_100
+        ViewerCertificate:
+          AcmCertificateArn: !Ref CertificateArn
+          SslSupportMethod: "sni-only"
