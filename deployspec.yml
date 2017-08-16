@@ -6,7 +6,10 @@ phases:
       - npm install -g serverless
   build:
     commands:
+      - mkdir deploy
       - ls
-      - serverless deploy --package . -s codepipeline
+      - cp *.json deploy/
+      - cp *.zip deploy
+      - serverless deploy -s codepipeline --package ./deploy
 
 
