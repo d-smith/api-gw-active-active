@@ -11,7 +11,7 @@ phases:
       - cd sample-app
       - mkdir deploy-artifacts
       - serverless package --package deploy-artifacts
-      - cd deploy-artifacts && zip -r ../deploy-artifacts.zip ./*
+      - cd deploy-artifacts && cp ../../deployspec.yml . && zip -r ../deploy-artifacts.zip ./*
 
 artifacts:
   files:
