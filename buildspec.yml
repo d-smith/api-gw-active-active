@@ -10,7 +10,7 @@ phases:
       - serverless --version
       - cd sample-app
       - mkdir deploy-artifacts
-      - serverless package --package deploy-artifacts
+      - serverless package --stage codepipeline --package deploy-artifacts
       - cd deploy-artifacts && cp ../../deployspec.yml . && cp ../serverless.yml .
 
 artifacts:
