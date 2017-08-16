@@ -1,0 +1,240 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  Create a full code build pipeline and code build stages for
+  a serverless app.
+
+Parameters:
+  OAuthToken:
+    Type: String
+    Description: OAuthToken from source provider needed to access repo
+    NoEcho: true
+
+Resources:
+  MyArtifactBucket:
+    Type: AWS::S3::Bucket
+
+  CodePipelineServerlessRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: [codepipeline.amazonaws.com ]
+          Action: ['sts:AssumeRole']
+      Path: /
+
+  CodePipelinePolicy:
+    Type: "AWS::IAM::Policy"
+    DependsOn: CodePipelineServerlessRole
+    Properties: 
+      PolicyName: "SLSCodePipelinePolicy"
+      PolicyDocument: 
+        Version: "2012-10-17"
+        Statement: 
+          - 
+            Effect: "Allow"
+            Action: 
+              - "s3:GetObject"
+              - "s3:GetObjectVersion"
+              - "s3:GetBucketVersioning"
+              - "codecommit:CancelUploadArchive"
+              - "codecommit:GetBranch"
+              - "codecommit:GetCommit"
+              - "codecommit:GetUploadArchiveStatus"
+              - "codecommit:UploadArchive"
+              - "codedeploy:CreateDeployment"
+              - "codedeploy:GetApplicationRevision"
+              - "codedeploy:GetDeployment"
+              - "codedeploy:GetDeploymentConfig"
+              - "codedeploy:RegisterApplicationRevision"
+              - "elasticbeanstalk:*"
+              - "ec2:*"
+              - "elasticloadbalancing:*"
+              - "autoscaling:*"
+              - "cloudwatch:*"
+              - "s3:*"
+              - "sns:*"
+              - "cloudformation:*"
+              - "rds:*"
+              - "sqs:*"
+              - "ecs:*"
+              - "iam:PassRole"
+              - "lambda:InvokeFunction"
+              - "lambda:ListFunctions"
+              - "opsworks:CreateDeployment"
+              - "opsworks:DescribeApps"
+              - "opsworks:DescribeCommands"
+              - "opsworks:DescribeDeployments"
+              - "opsworks:DescribeInstances"
+              - "opsworks:DescribeStacks"
+              - "opsworks:UpdateApp"
+              - "opsworks:UpdateStack"
+              - "codebuild:BatchGetBuilds"
+              - "codebuild:StartBuild"
+            Resource: "*"
+          -
+            Effect: "Allow"
+            Action:
+              - "s3:PutObject"
+            Resource:
+              - "arn:aws:s3:::codepipeline*"
+              - "arn:aws:s3:::elasticbeanstalk*"
+      Roles:
+        -
+          Ref: "CodePipelineServerlessRole"
+
+  CodeBuildServerlessRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: [codebuild.amazonaws.com]
+          Action: ['sts:AssumeRole']
+      Path: /
+      ManagedPolicyArns:
+      - arn:aws:iam::aws:policy/AmazonS3FullAccess 
+      - arn:aws:iam::aws:policy/AWSLambdaFullAccess
+      - arn:aws:iam::aws:policy/AmazonAPIGatewayAdministrator
+
+  CFPolicy:
+    Type: "AWS::IAM::Policy"
+    DependsOn: CodeBuildServerlessRole
+    Properties: 
+      PolicyName: "CFCodeBuild"
+      PolicyDocument: 
+        Version: "2012-10-17"
+        Statement: 
+          - 
+            Effect: "Allow"
+            Action: 
+              - "cloudformation:*"
+            Resource: "*"
+      Roles:
+        - !Ref CodeBuildServerlessRole
+
+  #
+  # This build policy was needed to deploy the sample app in this
+  # repo. You may need to tailor this to your situation.
+  #
+  SLSDeployPolicy:
+    Type: "AWS::IAM::Policy"
+    DependsOn: CodeBuildServerlessRole
+    Properties: 
+      PolicyName: "SLSDeployPolicy"
+      PolicyDocument: 
+        Version: "2012-10-17"
+        Statement: 
+          - 
+            Effect: "Allow"
+            Action: 
+              - "iam:GetRole"
+              - "iam:CreateRole"
+              - "iam:PutRolePolicy"
+              - "iam:DeleteRolePolicy"
+              - "iam:DeleteRole"
+            Resource: "*"
+      Roles:
+        -
+          Ref: "CodeBuildServerlessRole"
+ 
+
+  CodeBuildProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: !Join [ "-", [!Ref "AWS::StackName", "apiGWSample"]]
+      Description: build project (and ci skeleton) for gw sample
+      ServiceRole: !GetAtt CodeBuildServerlessRole.Arn
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/eb-nodejs-6.10.0-amazonlinux-64:4.0.0
+      Source:
+        Type: CODEPIPELINE
+      TimeoutInMinutes: 10
+
+  CodeDeployProject:
+    Type: AWS::CodeBuild::Project
+    DependsOn: CodeBuildProject
+    Properties:
+      Name: !Join [ "-", [!Ref "AWS::StackName", "apiGWSampleDeploy"]]
+      Description: build project (and ci skeleton) for deploy gw sample
+      ServiceRole: !GetAtt CodeBuildServerlessRole.Arn
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/eb-nodejs-6.10.0-amazonlinux-64:4.0.0
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: deployspec.yml
+      Artifacts:
+        Type: CODEPIPELINE
+      TimeoutInMinutes: 10
+
+  ServerlessPipeline:
+    Type: AWS::CodePipeline::Pipeline
+    DependsOn: CodeDeployProject
+    Properties:
+      RoleArn: !GetAtt CodePipelineServerlessRole.Arn
+      Stages:
+        -
+          Name: Source
+          Actions:
+            -
+              Name: SourceAction
+              ActionTypeId:
+                Category: Source
+                Owner: ThirdParty
+                Version: 1
+                Provider: GitHub
+              OutputArtifacts:
+                -
+                  Name: MyApp
+              Configuration:
+                Owner: xtraclabs
+                Repo: api-gw-active-standby
+                PollForSourceChanges: false
+                Branch: master
+                OAuthToken: !Ref OAuthToken
+              RunOrder: 1
+        -
+          Name: Build
+          Actions:
+            -
+              Name: BuildAction
+              InputArtifacts:
+                -
+                  Name: MyApp
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Version: 1
+                Provider: CodeBuild
+              OutputArtifacts:
+                -
+                  Name: MyAppBuild
+              Configuration:
+                ProjectName: !Ref CodeBuildProject
+        -
+          Name: Deploy
+          Actions:
+            -
+              Name: DeployAction
+              InputArtifacts:
+                -
+                  Name: MyAppBuild
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Version: 1
+                Provider: CodeBuild
+              Configuration:
+                ProjectName: !Ref CodeDeployProject
+      ArtifactStore:
+        Type: S3
+        Location: !Ref MyArtifactBucket       
+      Name: !Join ["-", [!Ref "AWS::StackName", "SLSPipeline"]]
