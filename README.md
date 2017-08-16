@@ -62,9 +62,26 @@ the requisite permissions.
 To do a manual route away, update the instantiation of the `cdn.yml` stack and
 change the value of the APIEndpoint to point to the stand by endpoint domain address.
 
+## Code Pipeline
+
+The build directory contains a cloud formation template that can
+create an AWS Code Pipeline to build and deploy this project to
+AWS.
+
+To create a manually trigged build and deploy pipeline, use the 
+`fullpipeline.yml` template. Note that auto triggering can be done by
+setting PollForSourceChanges to true in the pipeline's source stage.
+
+The template takes a single argument, which is an OAuth token to allow 
+AWS to access the github.com repo. You can generate such as token via
+your github's settings under the tokens section.
+
+Note that the project currently hardcodes the stage names in the build spec files for the build and deploy stages, this will be parameterized at some point.
+
 
 ## TODO
 
 * Detail how to set up API Key Synchronization between regions
 * Build a health check into the API or maybe a cloudwatch metric and route away via a lambda function
 * Add a diagram or two
+* Environment vars for code build parts - parameterize the stage name
