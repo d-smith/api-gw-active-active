@@ -8,8 +8,11 @@ phases:
     commands:
       - mkdir deploy
       - ls
-      - cp *.json deploy/
-      - cp *.zip deploy
+      - mv cloudformation-template-create-stack.json ./deploy/
+      - mv cloudformation-template-update-stack.json ./deploy/
+      - mv serverless-rest-api-with-dynamodb.zip ./deploy/
+      - mv serverless-state.json ./deploy/
+      - ls -R
       - serverless deploy -s codepipeline --package ./deploy
 
 
