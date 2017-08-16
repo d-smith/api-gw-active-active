@@ -17,6 +17,10 @@ Parameters:
     Type: String
     Description: CodeBuild project name for build part of stage
 
+  DeployProjectName:
+    Type: String
+    Description: CodeBuild project name for deploy part of stage
+
 Resources:
 
   MyArtifactBucket:
@@ -65,6 +69,21 @@ Resources:
                   Name: MyAppBuild
               Configuration:
                 ProjectName: !Ref BuildProjectName
+        -
+          Name: Deploy
+          Actions:
+            -
+              Name: DeployAction
+              InputArtifacts:
+                -
+                  Name: MyAppBuild
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Version: 1
+                Provider: CodeBuild
+              Configuration:
+                ProjectName: !Ref DeployProjectName
       ArtifactStore:
         Type: S3
         Location: !Ref MyArtifactBucket       
