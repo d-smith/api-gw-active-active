@@ -1,0 +1,20 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - yum install -y zip
+      - npm install -g serverless
+  build:
+    commands:
+      - serverless --version
+      - cd sample-app
+      - mkdir deploy-artifacts
+      - serverless package --stage cp2 --package deploy-artifacts
+      - cd deploy-artifacts && cp ../../deployspec.yml . && cp ../serverless.yml .
+
+artifacts:
+  files:
+    - deploy-artifacts/*
+  discard-paths: yes
+  base-directory: sample-app

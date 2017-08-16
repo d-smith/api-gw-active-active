@@ -1,0 +1,18 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - npm install -g serverless
+  build:
+    commands:
+      - mkdir deploy
+      - ls
+      - mv cloudformation-template-create-stack.json ./deploy/
+      - mv cloudformation-template-update-stack.json ./deploy/
+      - mv serverless-rest-api-with-dynamodb.zip ./deploy/
+      - mv serverless-state.json ./deploy/
+      - ls -R
+      - serverless deploy --stage cp2 --package deploy
+
+
