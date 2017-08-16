@@ -13,6 +13,6 @@ phases:
       - mv serverless-rest-api-with-dynamodb.zip ./deploy/
       - mv serverless-state.json ./deploy/
       - ls -R
-      - serverless deploy -s codepipeline --package deploy
+      - serverless deploy --stage codepipeline --package deploy
 
 
