@@ -8,6 +8,17 @@ Parameters:
     Type: String
     Description: OAuthToken from source provider needed to access repo
     NoEcho: true
+  StageName:
+    Type: String
+    Description: Stage name for deploy, stage as in API gateway and sls application.
+  PrimaryRegion:
+    Type: String
+    Description: Primary region for the application
+    Default: us-east-1
+  SecondaryRegion:
+    Type: String
+    Description: Secondary region for the application
+    Default: us-west-2
 
 Resources:
   MyArtifactBucket:
@@ -153,6 +164,9 @@ Resources:
         Type: LINUX_CONTAINER
         ComputeType: BUILD_GENERAL1_SMALL
         Image: aws/codebuild/eb-nodejs-6.10.0-amazonlinux-64:4.0.0
+        EnvironmentVariables:
+          - Name: stage
+            Value: !Ref StageName
       Source:
         Type: CODEPIPELINE
       TimeoutInMinutes: 10
@@ -168,6 +182,11 @@ Resources:
         Type: LINUX_CONTAINER
         ComputeType: BUILD_GENERAL1_SMALL
         Image: aws/codebuild/eb-nodejs-6.10.0-amazonlinux-64:4.0.0
+        EnvironmentVariables:
+          - Name: primary_region
+            Value: !Ref PrimaryRegion
+          - Name: secondary_region
+            Value: !Ref SecondaryRegion
       Source:
         Type: CODEPIPELINE
         BuildSpec: deployspec.yml
