@@ -13,7 +13,7 @@ phases:
       - mv serverless-rest-api-with-dynamodb.zip ./deploy/
       - mv serverless-state.json ./deploy/
       - ls -R
-      - serverless deploy --stage $env --package deploy --region $primary_region
-      - serverless deploy --stage $env --package deploy --region $secondary_region
+      - serverless deploy --stage $stage --package deploy --region $primary_region
+      - serverless deploy --stage $stage --package deploy --region $secondary_region
 
 
