@@ -11,14 +11,9 @@ Parameters:
   StageName:
     Type: String
     Description: Stage name for deploy, stage as in API gateway and sls application.
-  PrimaryRegion:
+  DeployRegion:
     Type: String
-    Description: Primary region for the application
-    Default: us-east-1
-  SecondaryRegion:
-    Type: String
-    Description: Secondary region for the application
-    Default: us-west-2
+    Description: Region to deploy the application to.
   CodeBranch:
     Type: String
     Description: Branch to build from
@@ -171,6 +166,8 @@ Resources:
         EnvironmentVariables:
           - Name: stage
             Value: !Ref StageName
+          - Name: region
+            Value: !Ref DeployRegion
       Source:
         Type: CODEPIPELINE
       TimeoutInMinutes: 10
@@ -189,10 +186,8 @@ Resources:
         EnvironmentVariables:
           - Name: stage
             Value: !Ref StageName
-          - Name: primary_region
-            Value: !Ref PrimaryRegion
-          - Name: secondary_region
-            Value: !Ref SecondaryRegion
+          - Name: region
+            Value: !Ref DeployRegion
       Source:
         Type: CODEPIPELINE
         BuildSpec: deployspec.yml
