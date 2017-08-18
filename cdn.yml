@@ -6,9 +6,6 @@ Parameters:
   APIEndpoint:
     Type: String
     Description: Gateway stage api endpoint domain part, e.g. <api-id>.execute-api.us-east-1.amazonaws.com
-  S3SiteEndpoint:
-    Type: String
-    Description: Bucket domain, for example in us-east-1 looks like <bucket-name>.s3.amazonaws.com
   APIStage:
     Type: String
     Description: Stage name of API deployment
@@ -21,7 +18,7 @@ Parameters:
   
 
 Resources:
-  WebpageCDN:
+  SLSAppCDN:
     Type: AWS::CloudFront::Distribution
     Properties:
       DistributionConfig:
@@ -30,7 +27,7 @@ Resources:
         DefaultCacheBehavior:
           ForwardedValues:
             QueryString: true
-          TargetOriginId: webpage
+          TargetOriginId: api
           ViewerProtocolPolicy: redirect-to-https
         CacheBehaviors:
           - AllowedMethods:
@@ -57,14 +54,8 @@ Resources:
             PathPattern: "/todos/*"
             TargetOriginId: api
             ViewerProtocolPolicy: https-only
-        DefaultRootObject: index.html
         Enabled: true
         Origins:
-          - DomainName: !Ref S3SiteEndpoint
-            Id: webpage
-            S3OriginConfig:
-              OriginAccessIdentity:
-                Ref: AWS::NoValue
           - DomainName: !Ref APIEndpoint
             Id: api
             CustomOriginConfig:
@@ -74,3 +65,8 @@ Resources:
         ViewerCertificate:
           AcmCertificateArn: !Ref CertificateArn
           SslSupportMethod: "sni-only"
+Outputs:
+  CFDomain:
+    Value: !GetAtt SLSAppCDN.DomainName
+    Export:
+      Name: !Sub "${AWS::StackName}-CDDomainName"
