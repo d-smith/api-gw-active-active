@@ -8,6 +8,16 @@ Parameters:
     Type: String
     Description: OAuthToken from source provider needed to access repo
     NoEcho: true
+  StageName:
+    Type: String
+    Description: Stage name for deploy, stage as in API gateway and sls application.
+  DeployRegion:
+    Type: String
+    Description: Region to deploy the application to.
+  CodeBranch:
+    Type: String
+    Description: Branch to build from
+    Default: master
 
 Resources:
   MyArtifactBucket:
@@ -153,6 +163,11 @@ Resources:
         Type: LINUX_CONTAINER
         ComputeType: BUILD_GENERAL1_SMALL
         Image: aws/codebuild/eb-nodejs-6.10.0-amazonlinux-64:4.0.0
+        EnvironmentVariables:
+          - Name: stage
+            Value: !Ref StageName
+          - Name: region
+            Value: !Ref DeployRegion
       Source:
         Type: CODEPIPELINE
       TimeoutInMinutes: 10
@@ -168,6 +183,11 @@ Resources:
         Type: LINUX_CONTAINER
         ComputeType: BUILD_GENERAL1_SMALL
         Image: aws/codebuild/eb-nodejs-6.10.0-amazonlinux-64:4.0.0
+        EnvironmentVariables:
+          - Name: stage
+            Value: !Ref StageName
+          - Name: region
+            Value: !Ref DeployRegion
       Source:
         Type: CODEPIPELINE
         BuildSpec: deployspec.yml
@@ -198,7 +218,7 @@ Resources:
                 Owner: xtraclabs
                 Repo: api-gw-active-standby
                 PollForSourceChanges: false
-                Branch: master
+                Branch: !Ref CodeBranch
                 OAuthToken: !Ref OAuthToken
               RunOrder: 1
         -
