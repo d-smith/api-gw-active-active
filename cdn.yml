@@ -42,6 +42,9 @@ Resources:
               - GET
               - HEAD
               - OPTIONS
+            DefaultTTL: 0
+            MaxTTL: 0
+            MinTTL: 0
             Compress: true
             ForwardedValues:
               Headers:
