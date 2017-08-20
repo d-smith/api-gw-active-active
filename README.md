@@ -1,5 +1,7 @@
 # API Gateway with a Cloud Front Origin
 
+<img src="./APIGatewayPattern.png" width="100%" height="100%">
+
 One annoyance with the current way the AWS Gateway in implemented is how it is 
 wrapped in a cloud front distribution that defeats the ability to set up a multi-region
 active-standby topology where clients use a single DNS API to access the API.
@@ -91,7 +93,5 @@ Note that the project currently hardcodes the stage names in the build spec file
 
 ## TODO
 
-* Detail how to set up API Key Synchronization between regions
 * Build a health check into the API or maybe a cloudwatch metric and route away via a lambda function
 * Add a diagram or two
-* Environment vars for code build parts - parameterize the stage name
