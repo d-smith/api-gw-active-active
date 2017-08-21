@@ -39,6 +39,15 @@ functions:
           private: true
           cors: true
 
+  health:
+    handler: todos/health.health
+    events:
+      - http:
+          path: todos/health
+          method: get
+          private: false
+          cors: true
+
   get:
     handler: todos/get.get
     events:
