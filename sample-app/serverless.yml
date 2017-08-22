@@ -94,3 +94,5 @@ resources:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
         TableName: ${self:provider.environment.DYNAMODB_TABLE}
+        StreamSpecification: 
+          StreamViewType: NEW_AND_OLD_IMAGES
