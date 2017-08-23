@@ -10,11 +10,11 @@ By using the pattern presented here, however, you can provide a single TLS-enabl
 endpoint to you API consumers (assuming they support the [SNI](https://en.wikipedia.org/wiki/Server_Name_Indication) TLS extension) behind
 which you can point from an active region to a stand by region.
 
-## Pattern - CLoud Front with Stable CNAME and Replaceable API Gateway Origin
+## Pattern - Cloud Front with Stable CNAME and Replaceable API Gateway Origin
 
 The pattern can be summarized as follows:
 
-* Create you API gateway applications in multiple regions
+* Create your API gateway applications in multiple regions
 * Create a cloud front distribution that contains your primary region's
 API gateway url as an origin
 * Associate an SSL certificate in ACM with a wildcard hostname for your api domain
@@ -90,8 +90,10 @@ your github's settings under the tokens section.
 
 Note that the project currently hardcodes the stage names in the build spec files for the build and deploy stages, this will be parameterized at some point.
 
+## DynamodDB Replication
 
-## TODO
-
-* Build a health check into the API or maybe a cloudwatch metric and route away via a lambda function
-* Add a diagram or two
+After deploying the application to two regions, set up DynamoDB replication
+using the [DynamoDB Cross Region Library](https://github.com/awslabs/dynamodb-cross-region-library). The
+[DynamoDB-CRR](https://github.com/xtraclabs/dynamodb-crr) project
+provides a cloud formation template to spin up an instance to
+do cross region replication using the library for a single table.
