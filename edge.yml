@@ -1,0 +1,54 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  Create a lambda edge function to route origin to standby site if region fails
+
+Parameters:
+  CodeBucketName:
+    Type: String
+    Description: Bucket containing lambda code zip file
+
+Resources:
+  FailoverRouterVersion:
+    Type: "AWS::Lambda::Version"
+    DependsOn: FailoverRouter
+    Properties:
+      FunctionName: !Ref FailoverRouter
+      Description: "Edge deployable failover router"
+
+  FailoverRouter:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      Handler: "edgefn.handler"
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code: 
+        S3Bucket: !Ref CodeBucketName
+        S3Key: edgefn.zip
+      Runtime: "nodejs6.10"
+
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+            - edgelambda.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Path: "/"
+      Policies:
+      - PolicyName: root
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - logs:*
+            Resource: arn:aws:logs:*:*:*
+
+Outputs:
+    LambdaArn:
+        Value: !GetAtt FailoverRouter.Arn

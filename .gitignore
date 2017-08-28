@@ -2,3 +2,4 @@ node_modules
 .serverless
 deploy-artifacts
 .ipynb_checkpoints
+edgefn.zip
