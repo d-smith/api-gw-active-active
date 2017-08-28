@@ -1,6 +1,39 @@
 'use strict';
 
+var AWS = require('aws-sdk');
+var route53 = new AWS.Route53();
+
+var healthCheckId = '91ff74c2-5df7-4bd2-a109-2b64ac0554db';
+
 exports.handler = (event, context, callback) => {
+
+    var params = {
+        HealthCheckId: healthCheckId /* required */
+    };
+    route53.getHealthCheckStatus(params, function(err, data) {
+        if (err) console.log(err, err.stack);   
+        else   {
+            console.log(data); 
+            let observations = data.HealthCheckObservations
+            let ok =0;
+            let failed = 0;
+            for(let item of observations) {
+                let statusReport = item.StatusReport;
+                if (statusReport.Status.startsWith('Success')) {
+                    ok = ok + 1;
+                } else {
+                    failed = failed + 1;
+                }
+            }
+            
+            if (ok <= failed && ok > 0) {
+                console.log('failed');
+            } else {
+                console.log('ok');
+            }
+        }
+    });
+
     /*
      * Generate HTTP response using 200 status code with a simple body.
      */
