@@ -60,3 +60,4 @@ Fun Facts:
 with the cloud front distro
 * It looks like you cannot delete an edge function that has been replicated via a trigger
 association with a distro.
+* Environment variables are not supported for lambda edge functions
