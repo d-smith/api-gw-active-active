@@ -1,12 +1,25 @@
 
 var AWS = require('aws-sdk');
+
+
+
+const proxyenv = process.env.http_proxy;
+if (proxyenv != "") {
+    console.log("Using proxy", proxyenv);
+    var proxy = require('proxy-agent');
+    
+    AWS.config.update({
+      httpOptions: { agent: proxy(proxyenv) }
+    });
+}
+
 var route53 = new AWS.Route53();
 
-var healthCheckId = '3e94509f-2b2d-4c97-975c-e73cd675ee57';
+//const primaryHealthCheckId = '3e94509f-2b2d-4c97-975c-e73cd675ee57';
+const primaryHealthCheckId = 'xx';
+const secondaryHealthCheckId = '3e94509f-2b2d-4c97-975c-e73cd675ee57';
 
-const status = function(data) {
-    console.log(data); 
-    let observations = data.HealthCheckObservations
+const statusFromObservations = (observations) => {
     let ok =0;
     let failed = 0;
     for(let item of observations) {
@@ -19,10 +32,41 @@ const status = function(data) {
     }
     
     if (ok <= failed && ok > 0) {
-        return  Promise.resolve('failed');
+        throw new Error('endpoint is unhealthy');
     } else {
         return  Promise.resolve('ok');
     }
+    
+}
+
+const status = function(data) {
+    console.log(data); 
+    let observations = data.HealthCheckObservations;
+    return statusFromObservations(observations);
+}
+
+const secondaryStatus = (data) => {
+    //If primary is ok then status is ok
+    console.log('secondaryStatus w/', data);
+    if(data == 'ok') {
+        return Promise.resolve('ok');
+    }
+
+    //Check secondary
+    var params = {
+        HealthCheckId: secondaryHealthCheckId /* required */
+    };
+
+    secondaryStatus = route53.getHealthCheckStatus(params).promise();
+    return secondaryStatus.then(data => status(data));
+}
+
+const checkSecondary = (err) => {
+    console.log('primary failed, trying secondary');
+    var params = {
+        HealthCheckId: secondaryHealthCheckId /* required */
+    };
+    return route53.getHealthCheckStatus(params).promise();
 }
 
 const response = {
@@ -50,18 +94,30 @@ const badResponse = {
 exports.handler = (event, context, callback) => {
 
     var params = {
-        HealthCheckId: healthCheckId /* required */
+        HealthCheckId: primaryHealthCheckId /* required */
     };
 
     const errHandler = function(err) {
         console.log(err.message)
     }
-    
+
     var primaryHealthStatus = route53.getHealthCheckStatus(params).promise();
-    primaryHealthStatus.then(data => status(data))
-    .then(statString => console.log(statString))
-    .then(() => callback(null, response))
-    .catch(error => errHandler(error));
- 
+    
+//    primaryHealthStatus.then(data => status(data))
+//        .then(data => secondaryStatus(data))
+//        .then(statString => console.log(statString))
+//        .then(() => callback(null, response))
+//        .catch(error => errHandler(error));
+    
+    primaryHealthStatus
+        .then(data => status(data))
+        .then(() => callback(null, response))
+        .catch(err => checkSecondary(err)
+                        .then(data => status(data))
+                        .then(() => callback(null, response))
+                        .catch(err => console.log(err))
+              );
+        
+
     
 };

@@ -1,0 +1,36 @@
+{
+  "name": "edge-router",
+  "version": "1.0.0",
+  "description": "edge routing to api gateway origin based on route 53 status",
+  "main": "edgefn.js",
+  "scripts": {
+    "test": "./node_modules/.bin/mocha --recursive",
+    "coverage": "./node_modules/.bin/istanbul cover node_modules/mocha/bin/_mocha -- -R spec --recursive",
+    "check-coverage": "cd coverage && ../node_modules/.bin/istanbul check-coverage --statements 90",
+    "sca": "./node_modules/.bin/eslint  ./notifications/*",
+    "integration-aws": "./scripts/integration/aws-integration-tests.sh",
+    "build": "npm run sca && npm run coverage"
+  },
+  "author": "a045103",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "aws-sdk-mock": "^1.7.0",
+    "chai": "^4.1.1",
+    "cucumber": "^2.3.1",
+    "cucumber-html-reporter": "^2.0.3",
+    "eslint": "^4.4.1",
+    "eslint-config-airbnb-base": "^11.3.1",
+    "eslint-plugin-import": "^2.7.0",
+    "istanbul": "^0.4.5",
+    "lambda-tester": "^3.0.2",
+    "mocha": "^3.5.0",
+    "request": "^2.81.0",
+    "serverless-aws-models": "^1.0.1",
+    "simple-mock": "^0.8.0"
+  },
+  "dependencies": {
+    "aws-lambda-local": "^1.0.15",
+    "aws-sdk": "^2.5.5",
+    "proxy-agent": "^2.1.0"
+  }
+}
