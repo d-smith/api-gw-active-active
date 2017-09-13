@@ -21,10 +21,10 @@ if (proxyenv != "") {
 
 var route53 = new AWS.Route53();
 
-const primaryHealthCheckId = ###PRIMARY_HEALTH_CHECK_ID###;
-const primaryEndpoint = ###PRIMARY_ENDPOINT###;
-const secondaryHealthCheckId = ###SECONDARY_HEALTH_CHECK_ID###;
-const secondaryEndpoint = ###SECONDARY_ENDPOINT###;
+const primaryHealthCheckId = '###PRIMARY_HEALTH_CHECK_ID###';
+const primaryEndpoint = '###PRIMARY_ENDPOINT###';
+const secondaryHealthCheckId = '###SECONDARY_HEALTH_CHECK_ID###';
+const secondaryEndpoint = '###SECONDARY_ENDPOINT###';
 
 const statusFromObservations = (observations) => {
     let ok =0;
@@ -38,7 +38,9 @@ const statusFromObservations = (observations) => {
         }
     }
     
-    if (ok <= failed && ok > 0) {
+    console.log('ok',ok);
+    console.log('failed', failed);
+    if (ok <= failed) {
         throw new Error('endpoint is unhealthy');
     } else {
         return  Promise.resolve('ok');
