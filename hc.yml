@@ -9,6 +9,9 @@ Parameters:
   ResourcePath:
     Type: String
     Description: Health check uri
+  Name:
+    Type: String
+    Description: Name to tag the health check with
 
 Resources:
 
@@ -19,3 +22,7 @@ Resources:
         FullyQualifiedDomainName: !Ref APIEndpoint
         ResourcePath: !Ref ResourcePath
         Type: HTTPS
+      HealthCheckTags:
+        -
+          Key: Name
+          Value: !Ref Name
