@@ -26,3 +26,7 @@ Resources:
         -
           Key: Name
           Value: !Ref Name
+
+Outputs:
+  HealthCheckId:
+    Value: !Ref myHealthCheck
