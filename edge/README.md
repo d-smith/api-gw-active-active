@@ -61,3 +61,6 @@ with the cloud front distro
 * It looks like you cannot delete an edge function that has been replicated via a trigger
 association with a distro.
 * Environment variables are not supported for lambda edge functions
+* Original implementation used request and request-promise-native for
+the http calls, but just this dependency pulled in 55 libraries and 
+made the zip file larger than the lamda edge limit.

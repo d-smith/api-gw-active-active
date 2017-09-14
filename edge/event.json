@@ -10,6 +10,12 @@
                 "key": "Host"
               }
             ],
+            "x-api-key": [
+              {
+                "value": "17a981c9-779c-4727-91e9-ee105374fb24",
+                "key": "x-api-key"
+              }
+            ],
             "user-name": [
               {
                 "value": "aws-cloudfront",
