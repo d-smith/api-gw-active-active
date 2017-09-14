@@ -146,7 +146,7 @@ const invoke = (host, request, callback) => {
                         key: 'Content-Type',
                         value: 'application/json'
                     }]
-                }
+                },
                 body: response.body
             }
 
