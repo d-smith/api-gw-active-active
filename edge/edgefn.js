@@ -1,24 +1,28 @@
 var AWS = require('aws-sdk');
-var rp = require('request-promise-native');
+let agent = null;
 
 // Comment out this block or you will have to upload
 // the proxy agent dependency in the lambda package. With
 // the following uncommented you can test locally via
 // lambda-local -f edgefn.js
 // BEGIN COMMENTED SECTION
-/*
 
+/*
 const proxyenv = process.env.http_proxy;
 console.log('proxyenv is', proxyenv);
 if (proxyenv != "") {
     console.log("Using proxy", proxyenv);
     var proxy = require('proxy-agent');
+    agent = proxy(proxyenv);
     
     AWS.config.update({
-      httpOptions: { agent: proxy(proxyenv) }
+      httpOptions: { agent: agent }
     });
 }
 */
+// END COMMENTED SECTION
+
+
 var route53 = new AWS.Route53();
 
 const primaryHealthCheckId = '663ee70d-3aeb-413a-80ea-2ff29bf9d163';
@@ -38,8 +42,8 @@ const statusFromObservations = (observations) => {
         }
     }
     
-    console.log('ok',ok);
-    console.log('failed', failed);
+    console.log('ok health checks',ok);
+    console.log('failed health checks', failed);
     if (ok <= failed) {
         throw new Error('endpoint is unhealthy');
     } else {
@@ -68,9 +72,47 @@ const badResponse = {
 };
 
 const doErrorResponse = (err, callback) => {
-    console.log(err);
+    console.log('Error response', err.message);
     callback(null, badResponse);
 }
+
+const getContent = function(hostname, uri, method, headers) {
+    return new Promise((resolve, reject) => {
+        const lib = require('https');
+        const url = require('url');
+
+        const endpoint = 'https://' + hostname + '/hc1' + uri;
+        let options = url.parse(endpoint);
+        options.headers = headers;
+
+        options.agent = agent; //agent is not null when testing on corp network
+        options.method = method;
+
+
+        const request = lib.request(options, (res) => {
+            console.log('working with response', res.statusCode);
+ 
+            const body = [];
+
+            res.on('data', (chunk) => body.push(chunk));
+
+            res.on('end', () => {
+                const theResponse = {}
+                theResponse.statusCode = res.statusCode;
+                theResponse.body = body.join('');
+                theResponse.statusMessage = res.statusMessage;
+                resolve(theResponse);
+            });
+        });
+
+        request.on('error', (err) => reject(err));
+
+        request.end();
+
+    });
+};
+
+
 
 const invoke = (host, request, callback) => {
 
@@ -88,38 +130,33 @@ const invoke = (host, request, callback) => {
 
     console.log('callHeaders', callHeaders);
 
-    var options = {
-        method: request.method,
-        uri: 'https://' + host + '/hc1' + request.uri,
-        headers: callHeaders,
-        resolveWithFullResponse: true,
-        simple: false
-    }
-
     const serverErrorResponse = {
         status: '500',
     };
 
-    rp(options)
+    getContent(host, request.uri, request.method, callHeaders)
         .then(function(response) {
-            console.log('response handler');
-            console.log(response.statusCode);
-            console.log(response.body);
 
-            if (response.statusCode < 300) {
-                callback(null, response.body);
-            } else {
-                const myResponse = {
-                    status: response.statusCode,
-                    statusDescription: response.statusMessage,
-    
+            //Form lambda edge response
+            const myResponse = {
+                status: response.statusCode,
+                statusDescription: response.statusMessage,
+                headers: {
+                    'content-type': [{
+                        key: 'Content-Type',
+                        value: 'application/json'
+                    }]
                 }
-                callback(response.body, null);
-            }           
+                body: response.body
+            }
+
+            console.log('Responding with', myResponse)
+
+            callback(null, myResponse);     
         })
-        .catch(err => function(err){
-            console.log('error handler');
-            console.log(err);
+        .catch((err) => {
+            console.log('error handler for getContent');
+            console.log(err.message);
             callback(null, serverErrorResponse);
         });
 

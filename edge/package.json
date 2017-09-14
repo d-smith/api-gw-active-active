@@ -14,10 +14,10 @@
   "author": "a045103",
   "license": "Apache-2.0",
   "dependencies": {
+  },
+  "devDependencies": {
     "aws-lambda-local": "^1.0.15",
-    "aws-sdk": "^2.5.5",
-    "proxy-agent": "^2.1.0",
-    "request": "^2.81.0",
-    "request-promise-native": "^1.0.4"
+    "aws-sdk": "^2.115.0",
+    "proxy-agent": "^2.1.0"
   }
 }
