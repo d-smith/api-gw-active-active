@@ -139,7 +139,7 @@ const invoke = (host, request, callback) => {
 
             //Form lambda edge response
             const myResponse = {
-                status: response.statusCode,
+                status: '' + response.statusCode,
                 statusDescription: response.statusMessage,
                 headers: {
                     'content-type': [{
