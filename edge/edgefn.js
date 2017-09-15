@@ -25,10 +25,13 @@ if (proxyenv != "") {
 
 var route53 = new AWS.Route53();
 
-const primaryHealthCheckId = '663ee70d-3aeb-413a-80ea-2ff29bf9d163';
-const primaryEndpoint = '0ek5kcs12k.execute-api.us-east-1.amazonaws.com';
-const secondaryHealthCheckId = 'cba8b6d5-9a90-435e-b377-f7ef4563196d';
-const secondaryEndpoint = '16l579d9a3.execute-api.us-west-2.amazonaws.com';
+//These have to be set post deploy in the absence of a deploy job that
+//can provide them at runtime.
+const primaryHealthCheckId = 'XXXX';
+const primaryEndpoint = 'XXXX';
+const secondaryHealthCheckId = 'XXXX';
+const secondaryEndpoint = 'XXXX';
+const stageName = 'XXXX'
 
 const statusFromObservations = (observations) => {
     let ok =0;
@@ -81,7 +84,7 @@ const getContent = function(hostname, uri, method, headers) {
         const lib = require('https');
         const url = require('url');
 
-        const endpoint = 'https://' + hostname + '/hc1' + uri;
+        const endpoint = 'https://' + hostname + '/' + stageName + uri;
         let options = url.parse(endpoint);
         options.headers = headers;
 
@@ -111,7 +114,6 @@ const getContent = function(hostname, uri, method, headers) {
 
     });
 };
-
 
 
 const invoke = (host, request, callback) => {
@@ -173,8 +175,23 @@ const callSecondaryApiGatewayOrigin = (request,callback) => {
     invoke(secondaryEndpoint, request, callback);
 }
 
+const dumpThing = (request, prefix) => {
+    Object.keys(request).forEach(function(key){
+        let val = request[key];
+        if(typeof val == 'object') {
+            console.log(prefix, key);
+            dumpThing(val, prefix + '-');
+        } else {
+            console.log(prefix, key, ' -> ', val);
+        }
+    });
+}
+
 exports.handler = (event, context, callback) => {
     const request = event.Records[0].cf.request;
+    console.log(event);
+    console.log('context', context);
+    dumpThing(event,'');
 
     var params = {
         HealthCheckId: primaryHealthCheckId

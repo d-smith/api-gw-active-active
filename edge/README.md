@@ -64,3 +64,5 @@ association with a distro.
 * Original implementation used request and request-promise-native for
 the http calls, but just this dependency pulled in 55 libraries and 
 made the zip file larger than the lamda edge limit.
+* Status must be set as string, not integer
+* POST body does not appear to be available in the cf context (support case pending)
