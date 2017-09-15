@@ -73,3 +73,6 @@ Outputs:
     Value: !GetAtt SLSAppCDN.DomainName
     Export:
       Name: !Sub "${AWS::StackName}-CDDomainName"
+  CFDistID:
+    Value: !Ref SLSAppCDN
+  

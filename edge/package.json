@@ -13,24 +13,11 @@
   },
   "author": "a045103",
   "license": "Apache-2.0",
-  "devDependencies": {
-    "aws-sdk-mock": "^1.7.0",
-    "chai": "^4.1.1",
-    "cucumber": "^2.3.1",
-    "cucumber-html-reporter": "^2.0.3",
-    "eslint": "^4.4.1",
-    "eslint-config-airbnb-base": "^11.3.1",
-    "eslint-plugin-import": "^2.7.0",
-    "istanbul": "^0.4.5",
-    "lambda-tester": "^3.0.2",
-    "mocha": "^3.5.0",
-    "request": "^2.81.0",
-    "serverless-aws-models": "^1.0.1",
-    "simple-mock": "^0.8.0"
-  },
   "dependencies": {
+  },
+  "devDependencies": {
     "aws-lambda-local": "^1.0.15",
-    "aws-sdk": "^2.5.5",
+    "aws-sdk": "^2.115.0",
     "proxy-agent": "^2.1.0"
   }
 }
