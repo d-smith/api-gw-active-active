@@ -1,5 +1,8 @@
 # Lambda Edge Notes
 
+NOTE: this thing is current DOA as you cannot access POST or PUT payloads
+in lambda edge, thus there's no way you can proxy a gateway service that uses the full set of HTTP methods.
+
 Rough idea:
 
 * Identify primary and secondary endpoints
