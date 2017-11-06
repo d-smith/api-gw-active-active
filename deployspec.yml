@@ -14,11 +14,5 @@ phases:
       - mv serverless-state.json ./deploy/
       - ls -R
       - serverless deploy --region $region --stage $stage  --package deploy
-      - aws apigateway get-rest-apis
-      - stage='s1-serverless-rest-api-with-dynamodb'
-      - qs="'items[?name==\`"
-      - qs+=$stage
-      - qs+="\`].{id:id}'"
-      - id=`eval aws apigateway get-rest-apis --query $qs --output text`
-      - echo modify $id
+      - ./fix-gateway.sh $stage
 

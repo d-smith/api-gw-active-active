@@ -12,7 +12,7 @@ phases:
       - cd sample-app
       - mkdir deploy-artifacts
       - serverless package --stage $stage --region $region --package deploy-artifacts
-      - cd deploy-artifacts && cp ../../deployspec.yml . && cp ../serverless.yml .
+      - cd deploy-artifacts && cp ../../deployspec.yml . && cp ../serverless.yml . && cp ../../fix-gateway.sh .
 
 artifacts:
   files:
