@@ -13,7 +13,7 @@ phases:
       - mv serverless-rest-api-with-dynamodb.zip ./deploy/
       - mv serverless-state.json ./deploy/
       - ls -R
-      - serverless deploy --region $region --stage   --package deploy
+      - serverless deploy --region $region --stage $stage  --package deploy
       - aws apigateway get-rest-apis
       - stage='s1-serverless-rest-api-with-dynamodb'
       - qs="'items[?name==\`"
