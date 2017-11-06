@@ -13,6 +13,7 @@ phases:
       - mkdir deploy-artifacts
       - serverless package --stage $stage --region $region --package deploy-artifacts
       - cd deploy-artifacts && cp ../../deployspec.yml . && cp ../serverless.yml .
+      - aws apigateway get-rest-apis
 
 artifacts:
   files:
