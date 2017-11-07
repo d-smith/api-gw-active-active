@@ -15,5 +15,5 @@ phases:
       - ls -R
       - serverless deploy --region $region --stage $stage  --package deploy
       - chmod +x ./fix-gateway.sh
-      - ./fix-gateway.sh $stage
+      - ./fix-gateway.sh $stage $region
 
