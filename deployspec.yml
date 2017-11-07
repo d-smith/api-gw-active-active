@@ -13,5 +13,7 @@ phases:
       - mv serverless-rest-api-with-dynamodb.zip ./deploy/
       - mv serverless-state.json ./deploy/
       - ls -R
-      - serverless deploy --region $region --stage $stage --package deploy
+      - serverless deploy --region $region --stage $stage  --package deploy
+      - chmod +x ./fix-gateway.sh
+      - ./fix-gateway.sh $stage
 
