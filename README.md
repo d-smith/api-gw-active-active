@@ -38,13 +38,4 @@ which you wish to deploy the application to.
 
 ## DynamodDB Replication
 
-After deploying the application to two regions, set up DynamoDB replication
-using the [DynamoDB Cross Region Library](https://github.com/awslabs/dynamodb-cross-region-library). The
-[DynamoDB-CRR](https://github.com/xtraclabs/dynamodb-crr) project
-provides a cloud formation template to spin up an instance to
-do cross region replication using the library for a single table.
-
-## Extending to Active-Active Regions
-
-To use for an active-active two region configuration, use [Richmeister](https://github.com/xtraclabs/richmeister) or [Richmeister2](https://github.com/xtraclabs/richmeister2) based on your scale needs, noting the changes
-needed to the REST API calls.
+After deploying the application to two regions, set up DynamoDB cross region replication using [Richmeister](https://github.com/xtraclabs/richmeister) or [Richmeister2](https://github.com/xtraclabs/richmeister2) based on your scale needs, noting the changes needed to the REST API calls to support the replication. Even with an active/failover routing policy you want to have the data replication going both ways as Route 53 will resume traffic routing to the primary location when its health checks indicate health again.
