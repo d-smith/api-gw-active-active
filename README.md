@@ -3,19 +3,26 @@
 <img src="./APIGatewayPattern.png" width="100%" height="100%">
 
 This project illustrates how to install a serverless application in two AWS regions,
-and set up a Route 53 failover routing policy using a common custom domain name
-for both applications. This leverages the ability to denote API gateway deployments
+and set up a Route 53 weighted routing policy using a common custom domain name
+for both regions, with a global dynamodb replication group. 
+
+This leverages the ability to denote API gateway deployments
 as Regional; prior to that a Cloud Front distribution with an API gateway origin
 has to be used, and failover performed as a manual route away by updating the 
-Cloud Front origin.
+Cloud Front origin. 
+
+This also leverages the new DynamoDB global table capability announced last week
+at reinvent.
+
 
 The project provides:
 
 * A sample serverless application in the sample-app directory
 * Cloud formation to set up a two stage Code Pipeline to build and deploy the serverless application.
 * A Jupyter Notebook to layer on a common API key that can be used in both regions,
-configuration of the customer domain and gateway mapping, route 53 health check definitions, and
-the Route 53 record sets providing the DNS failover policy.
+configuration of the custom domain and gateway mapping, route 53 health check definitions, and
+the Route 53 record sets providing the weighted DNS policy integrated with health checks to adjust
+routing based on region health.
 
 ## Code Pipeline
 
@@ -38,4 +45,5 @@ which you wish to deploy the application to.
 
 ## DynamodDB Replication
 
-After deploying the application to two regions, set up DynamoDB cross region replication using [Richmeister](https://github.com/xtraclabs/richmeister) or [Richmeister2](https://github.com/xtraclabs/richmeister2) based on your scale needs, noting the changes needed to the REST API calls to support the replication. Even with an active/failover routing policy you want to have the data replication going both ways as Route 53 will resume traffic routing to the primary location when its health checks indicate health again.
+Prior to the introduction of global tables, and external multi-master replication
+scheme had to be bolted on to the solution. This is no longer required.
